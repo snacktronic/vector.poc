@@ -12,10 +12,15 @@ namespace Lib.QPhysics
         static readonly char[] symbols = exptected.Distinct().ToArray();
         static readonly int model = exptected.Length, cause = 1;
         static readonly int size = 100, axis = 3, charges = 1;
-        
-        // particle properties
-        double[,] _position = new double[size, axis];
-        double[,] _charge   = new double[size, charges];
+
+        double[,] _inputs = new double[size, charges];
+        double[,] _outputs = new double[size, axis];
+
+        public double this[int i, int j] 
+        {
+            get => _outputs[i,j];
+            set => _inputs[i,j] = value;
+         }
 
         public void eval()
         {
@@ -26,12 +31,12 @@ namespace Lib.QPhysics
             {
                 for (int b = 0; b < size; b++)
                 {
-                    var c = Sum(charges, i => _charge[a, i] * _charge[b, i]);
-                    var d = Sum(axis, i => Math.Pow(_position[a, i] - _position[b, i],2));
+                    var c = Sum(charges, i => _inputs[a, i] * _inputs[b, i]);
+                    var d = Sum(axis, i => Math.Pow(_outputs[a, i] - _outputs[b, i],2));
                     var f = c / d * w;
                     for (int i = 0; i < axis; i++)
                     {
-                        acc[a, i] += (_position[a, i] - _position[b, i]) * f;
+                        acc[a, i] += (_outputs[a, i] - _outputs[b, i]) * f;
                     }
                 }
             }
