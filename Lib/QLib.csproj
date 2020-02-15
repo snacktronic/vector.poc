@@ -41,17 +41,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="QLogic\Circuit.cs" />
     <Compile Include="QMath\Model\Angle.cs" />
     <Compile Include="QMath\Model\Number.cs" />
     <Compile Include="QMath\Model\Radian.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QMath\Model\Range.cs" />
+    <Compile Include="QModel\Parameters.cs" />
     <Compile Include="QPhysics\Space.cs" />
     <Compile Include="QSignal\Aritmethic.cs" />
     <Compile Include="QSignal\Model\FractionalBandWidth.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="QLogic\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

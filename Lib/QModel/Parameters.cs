@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lib
+namespace Lib.QModel
 {
-    public class Class1
+    class Parameters
     {
+
     }
 }
