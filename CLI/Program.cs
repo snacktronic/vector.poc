@@ -16,17 +16,10 @@ namespace CLI
     {
         static void Main(string[] args)
         {
-            Test02();
-
-            Console.ReadLine();
-        }
-
-        private static void Test02()
-        {
             var expected = "Hello World!".ToCharArray();
             var symbols = expected.Distinct().ToArray();
             var outputs = new char[expected.Length];
-            var inputs  = new double[expected.Length];
+            var inputs = new double[expected.Length];
             var circuit = new Circuit(inputs.Length, outputs.Length, symbols.Length);
 
             do
@@ -37,6 +30,7 @@ namespace CLI
             } while (circuit.Execute() > 0);
 
             Console.WriteLine("Problem solved!");
+            Console.ReadLine();
         }
 
         private static double[] constraint(char[] expected, char[] outputs)
