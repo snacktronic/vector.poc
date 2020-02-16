@@ -41,8 +41,8 @@ namespace CLI
             space.Translate(symbols, model);
 
 
-            var rs = new Range { Offset = 0, Length = symbols.Length - 1 };
-            var rm = new Range { Offset = symbols.Length, Length = model.Length - 1 };
+            var rs = new Segment { Offset = 0, Length = symbols.Length - 1 };
+            var rm = new Segment { Offset = symbols.Length, Length = model.Length - 1 };
 
             
         }
