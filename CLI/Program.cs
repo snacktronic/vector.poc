@@ -4,6 +4,7 @@ using Lib.QPhysics;
 using Lib.Signal.Model;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -24,27 +25,23 @@ namespace CLI
         {
             var expected = "Hello World!".ToCharArray();
             var symbols = expected.Distinct().ToArray();
-            var model = new char[expected.Length];
-            var constraints = new double[123];
+            var outputs = new char[expected.Length];
+            var inputs  = new double[expected.Length];
+            var circuit = new Circuit(inputs.Length, outputs.Length, symbols.Length);
 
-            //double[] constraints(Circuit c)
-            //{
-            //    // Discreet constraints
-            //    rm.For.Select(m => c.Nearest)
-            //    Enumerable.Range(0, model.Length).Select(m => c.NearestIn(range["m"], ))
-            //    // Fuzzy constraints
-            //    return Enumerable.Range(0, model.Length).Select(i => );
-            //    return new double[1];
-            //}
+            do
+            {
+                outputs = circuit.Translate(symbols);
+                inputs = constraint(expected, outputs);
+                circuit.Set(inputs);
+            } while (circuit.Execute() > 0);
 
-            var space = new Space(symbols.Length, model.Length, constraints.Length);
-            space.Translate(symbols, model);
+            Console.WriteLine("Problem solved!");
+        }
 
-
-            var rs = new Segment { Offset = 0, Length = symbols.Length - 1 };
-            var rm = new Segment { Offset = symbols.Length, Length = model.Length - 1 };
-
-            
+        private static double[] constraint(char[] expected, char[] outputs)
+        {
+            return Enumerable.Range(0, expected.Length).Select(i => expected[i] == outputs[i] ? 0.0 : 1.0).ToArray();
         }
 
         private static void Test01()

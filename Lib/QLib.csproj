@@ -46,9 +46,9 @@
     <Compile Include="QMath\Model\Number.cs" />
     <Compile Include="QMath\Model\Radian.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QMath\Model\Segment.cs" />
+    <Compile Include="QPhysics\Segment.cs" />
     <Compile Include="QModel\Parameters.cs" />
-    <Compile Include="QPhysics\Space.cs" />
+    <Compile Include="QPhysics\Engine.cs" />
     <Compile Include="QSignal\Aritmethic.cs" />
     <Compile Include="QSignal\Model\FractionalBandWidth.cs" />
   </ItemGroup>
