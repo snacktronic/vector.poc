@@ -1,0 +1,21 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:UI"
+             xmlns:Menus="clr-namespace:UI.UserControls.Menus" 
+             xmlns:ToolBars="clr-namespace:UI.UserControls.ToolBars" 
+             xmlns:Views="clr-namespace:UI.UserControls.Views" 
+             x:Class="UI.MainPanel"
+             mc:Ignorable="d" 
+             d:DesignHeight="720" d:DesignWidth="1280">
+    <DockPanel LastChildFill="True" Margin="0,0,0,0">
+        <Menus:MainMenu DockPanel.Dock="Top"/>
+        <ToolBars:MainToolBar DockPanel.Dock="Top"/>
+        <Button Content="Palette" DockPanel.Dock="Left"/>
+        <Button Content="Properties" DockPanel.Dock="Right"/>
+        <Button Content="Console" DockPanel.Dock="Bottom"/>
+        <Views:SpaceView/>
+    </DockPanel>
+</UserControl>
