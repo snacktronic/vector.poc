@@ -27,7 +27,7 @@ namespace Lib.QPhysics
             Particles = particles;
         }
 
-        
+
     }
 
     public static class SpaceFactory
@@ -46,9 +46,13 @@ namespace Lib.QPhysics
         {
             lock (space)
             {
-                space.Particles.Charge = new double[space.Size, space.Charges];
-                space.Particles.Position = new double[space.Size, space.Axis];
-                space.Particles.Momentum = new double[space.Size, space.Axis];
+                space.Particles = new Particles
+                {
+                    Charge = new double[space.Size, space.Charges],
+                    Position = new double[space.Size, space.Axis],
+                    Momentum = new double[space.Size, space.Axis]
+                };
+
 
                 for (var i = 0; i < space.Size; i++)
                 {
@@ -128,12 +132,12 @@ namespace Lib.QPhysics
 
         public static double[,] Distance(this Space space, Segment sa, Segment sb)
         {
-            var result = new double[sb.Length, sa.Length];
+            var result = new double[sa.Length, sb.Length];
             for (var a = 0; a < sa.Length; a++)
             {
                 for (var b = 0; b < sb.Length; b++)
                 {
-                    result[a, b] = space.Distance(a, b);
+                    result[a, b] = space.Distance(sa.Offset + a, sb.Offset + b);
                 }
             }
             return result;
@@ -143,11 +147,11 @@ namespace Lib.QPhysics
         public static double Charge(this Space space, int a) => Mul(space.Charges, i => space.Particles.Charge[a, i] * space.Particles.Charge[a, i]);
         public static double Distance(this Space space, int a) => Sum(space.Axis, i => Math.Pow(space.Particles.Position[a, i] - space.Particles.Momentum[a, i], 2));
         public static double Force(this Space space, int a, int b) => space.Charge(a, b) / space.Distance(a, b);
-        public static double Charge  (this Space space, int a, int b) => Mul(space.Charges, i => space.Particles.Charge[a, i] * space.Particles.Charge[b, i]);
+        public static double Charge(this Space space, int a, int b) => Mul(space.Charges, i => space.Particles.Charge[a, i] * space.Particles.Charge[b, i]);
         public static double Distance(this Space space, int a, int b) => Sum(space.Axis, i => Math.Pow(space.Particles.Position[a, i] - space.Particles.Position[b, i], 2));
         public static double Sum(int count, Func<int, double> f) => Enumerable.Range(0, count).Aggregate(0.0, (acc, i) => acc += f(i));
+        public static double Sub(int count, Func<int, double> f) => Enumerable.Range(0, count).Aggregate(0.0, (acc, i) => acc -= f(i));
         public static double Mul(int count, Func<int, double> f) => Enumerable.Range(0, count).Aggregate(1.0, (acc, i) => acc *= f(i));
-        public static double Sub(int count, Func<int, double> f) => Enumerable.Range(0, count).Aggregate(1.0, (acc, i) => acc -= f(i));
         public static double Div(int count, Func<int, double> f) => Enumerable.Range(0, count).Aggregate(1.0, (acc, i) => acc /= f(i));
     }
 }

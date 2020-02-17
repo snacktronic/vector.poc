@@ -25,11 +25,13 @@ namespace CLI
             do
             {
                 outputs = circuit.Translate(symbols);
+                Console.WriteLine(new string(outputs));
                 inputs = constraint(expected, outputs);
                 circuit.Set(inputs);
             } while (circuit.Execute() > 0);
 
-            Console.WriteLine("Problem solved!");
+            Console.WriteLine(new string(outputs));
+            Console.WriteLine("EOP!");
             Console.ReadLine();
         }
 

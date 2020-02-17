@@ -58,7 +58,7 @@ namespace Lib.QLogic
                 _mental.Charge(Inputs, i, 0, inputs[i]);
             }
 
-            _mental.Temper = inputs.Sum( i => i * i);
+            _mental.Temper =  1.0 / -(1.0+inputs.Sum( i => i * i)+1);
         }
 
         public double Execute()
