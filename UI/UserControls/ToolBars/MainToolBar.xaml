@@ -6,15 +6,19 @@
              xmlns:local="clr-namespace:UI.UserControls.ToolBars"
              mc:Ignorable="d" 
              d:DesignHeight="36" d:DesignWidth="800">
-   
+
     <ToolBarOverflowPanel HorizontalAlignment="Left" Margin="0,0,0,0">
         <Button Content="Clear" Padding="3,3,3,3" Margin="3,3,3,3" Command="{Binding Commands.Clear}" CommandParameter=""/>
         <Button Content="Render" Padding="3,3,3,3" Margin="3,3,3,3" Command="{Binding Commands.Clear}" CommandParameter=""/>
         <Button Content="Refresh" Padding="3,3,3,3" Margin="3,3,3,3" Command="{Binding Commands.Clear}" CommandParameter=""/>
         <Button Content="Build" Padding="3,3,3,3" Margin="3,3,3,3"/>
         <Button Content="Start" Padding="3,3,3,3" Margin="3,3,3,3"/>
+        <Button Content="Add Line" Padding="3,3,3,3" Margin="3,3,3,3" Command="{Binding ExecuteCommand}" CommandParameter="AddLine"/>
+        <RepeatButton  Content="Add Lines" Padding="3,3,3,3" Margin="3,3,3,3" Command="{Binding ExecuteCommand}" CommandParameter="AddLine" Interval="10"/>
+        <RepeatButton  Content="Animate" Padding="3,3,3,3" Margin="3,3,3,3" Command="{Binding ExecuteCommand}" CommandParameter="Animate" Interval="1"/>
         <ToggleButton Content="X" Padding="3,3,3,3" Margin="3,3,3,3"/>
         <ToggleButton Content="Y" Padding="3,3,3,3" Margin="3,3,3,3"/>
         <ToggleButton Content="Z" Padding="3,3,3,3" Margin="3,3,3,3"/>
+        
     </ToolBarOverflowPanel>
 </UserControl>

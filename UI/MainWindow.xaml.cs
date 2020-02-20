@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using UI.UserControls;
+using UI.UserControls.Commands;
 
 namespace UI
 {
@@ -19,9 +21,10 @@ namespace UI
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    {
+    {        
         public MainWindow()
         {
+            DataContext = new DataContext(this);            
             InitializeComponent();
         }
     }

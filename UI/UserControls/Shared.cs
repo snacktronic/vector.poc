@@ -7,7 +7,7 @@ using UI.UserControls.Views;
 
 namespace UI.UserControls
 {
-    public class Shared : Model
+    public class Shared
     {
     }
 }

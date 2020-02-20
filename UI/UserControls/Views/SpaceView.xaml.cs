@@ -23,6 +23,12 @@ namespace UI.UserControls.Views
         public SpaceView()
         {
             InitializeComponent();
+            this.DataContextChanged += Handle;
+        }
+
+        private void Handle(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var _ = e.NewValue as ISpaceViewModel ?? throw new NotSupportedException();
         }
 
         public void Refresh()
@@ -42,11 +48,12 @@ namespace UI.UserControls.Views
             var line = new Line();
             line.Stroke = Brushes.Cyan;
             line.StrokeThickness = 2;
-            line.X1 = rnd.Next(640);
-            line.Y1 = rnd.Next(480);
+            line.X1 = rnd.Next(0);
+            line.Y1 = rnd.Next(0);
             line.X2 = rnd.Next(640);
             line.Y2 = rnd.Next(480);
             MyCanvas.Children.Add(line);
+
         }
     }
 }

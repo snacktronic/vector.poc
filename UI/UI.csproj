@@ -55,10 +55,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Core\RangeObservableCollection.cs" />
     <Compile Include="UserControls\Commands\Command.cs" />
     <Compile Include="UserControls\Commands\Clear.cs" />
+    <Compile Include="UserControls\Commands\Foo\AddLineCommand.cs" />
     <Compile Include="UserControls\Commands\Refresh.cs" />
+    <Compile Include="UserControls\Commands\RelayCommand.cs" />
     <Compile Include="UserControls\Commands\Render.cs" />
+    <Compile Include="UserControls\DataContext.cs" />
     <Compile Include="UserControls\Shared.cs" />
     <Compile Include="UserControls\ToolBars\MainToolBar.xaml.cs">
       <DependentUpon>MainToolBar.xaml</DependentUpon>
