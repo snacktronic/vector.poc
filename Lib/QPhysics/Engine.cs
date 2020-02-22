@@ -1,33 +1,27 @@
 ﻿using Lib.QMath.Model;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Lib.QPhysics
 {
-    public class Particles
+    public class Fields
     {
-        public double[,] Charge;
+        public double[] Strength;
         public double[,] Position;
-        public double[,] Momentum;
+        public double[,] Direction;
     }
 
     public class Space
     {
         public int Size { get; set; }
         public int Axis { get; set; }
-        public int Charges { get; set; }
+        // t=1-c^2/C^2
         public double Temper { get; set; }
-        public Particles Particles { get; set; }
-
-        public Space(Particles particles = null)
+        public Fields Fields { get; set; }
+        public Space(int axis)
         {
-            Particles = particles;
+            Axis = axis;
         }
-
-
     }
 
     public static class SpaceFactory
@@ -46,28 +40,25 @@ namespace Lib.QPhysics
         {
             lock (space)
             {
-                space.Particles = new Particles
+                space.Fields = new Fields
                 {
-                    Charge = new double[space.Size, space.Charges],
+                    Strength = new double[space.Size],
                     Position = new double[space.Size, space.Axis],
-                    Momentum = new double[space.Size, space.Axis]
+                    Direction = new double[space.Size, space.Axis]
+                    
                 };
-
 
                 for (var i = 0; i < space.Size; i++)
                 {
                     for (var j = 0; j < space.Axis; j++)
                     {
-                        space.Particles.Position[i, j] = seed.NextDouble() * 2.0 - 1.0;
+                        space.Fields.Position[i, j] = seed.NextDouble() * 2.0 - 1.0;
                     }
                 }
 
                 for (var i = 0; i < space.Size; i++)
                 {
-                    for (var j = 0; j < space.Charges; j++)
-                    {
-                        space.Particles.Charge[i, j] = 1.0;
-                    }
+                    space.Fields.Strength[i] = 1.0;
                 }
                 return space;
             }
@@ -76,23 +67,31 @@ namespace Lib.QPhysics
 
     public static class Engine
     {
-        public static void Charge(this Space space, Segment segment, int i, int charge, double value)
+        public static void SetStrength(this Space space, Segment segment, int i, double value)
         {
             lock (space)
             {
-                space.Particles.Charge[segment.Offset + i, charge] = value;
+                space.Fields.Strength[segment.Offset + i] = value;
             }
         }
 
-        public static double Read(this Space space, Segment segment, int i, int axes)
+        public static double GetStrength(this Space space, Segment segment, int i)
         {
             lock (space)
             {
-                return space.Particles.Position[segment.Offset + i, axes];
+                return space.Fields.Strength[segment.Offset + i];
             }
         }
 
-        public static Space Eval(this Space space)
+        public static double GetPosition(this Space space, Segment segment, int i, int axes)
+        {
+            lock (space)
+            {
+                return space.Fields.Position[segment.Offset + i, axes];
+            }
+        }
+
+        public static Space Eval(this Space space, Segment forces)
         {
             lock (space)
             {
@@ -102,7 +101,14 @@ namespace Lib.QPhysics
                 {
                     for (var i = 0; i < space.Axis; i++)
                     {
-                        acc[a, i] += (space.Particles.Position[a, i] - space.Particles.Momentum[a, i]) * space.Force(a) * space.Temper;
+                        foreach (var f in forces.Range)
+                        {
+                            // C: Total Constraints, c: Completed Constraints
+                            // t: Temper, f: Force
+                            // t=1-c^2/C^2
+                            // f=(1/x^2+1)t
+                            acc[a, i] += (space.Fields.Position[a, i] - space.Fields.Direction[a, i]) * space.Force(f,  a);
+                        }
                     }
                 }
 
@@ -112,7 +118,10 @@ namespace Lib.QPhysics
                     {
                         for (var i = 0; i < space.Axis; i++)
                         {
-                            acc[a, i] += (space.Particles.Position[a, i] - space.Particles.Position[b, i]) * space.Force(a, b) * space.Temper;
+                            foreach (var f in forces.Range)
+                            {
+                                acc[a, i] += (space.Fields.Position[a, i] - space.Fields.Position[b, i]) * space.Force(f, a, b);
+                            }
                         }
                     }
                 }
@@ -121,8 +130,8 @@ namespace Lib.QPhysics
                 {
                     for (var i = 0; i < space.Axis; i++)
                     {
-                        space.Particles.Position[a, i] += acc[a, i];
-                        space.Particles.Momentum[a, i] = acc[a, i];
+                        space.Fields.Position[a, i] += acc[a, i];
+                        space.Fields.Direction[a, i] = acc[a, i];
                     }
                 }
 
@@ -137,21 +146,15 @@ namespace Lib.QPhysics
             {
                 for (var b = 0; b < sb.Length; b++)
                 {
-                    result[a, b] = space.Distance(sa.Offset + a, sb.Offset + b);
+                    result[a, b] = space.SquaredDistance(sa.Offset + a, sb.Offset + b);
                 }
             }
             return result;
         }
 
-        public static double Force(this Space space, int a) => space.Charge(a) / space.Distance(a);
-        public static double Charge(this Space space, int a) => Mul(space.Charges, i => space.Particles.Charge[a, i] * space.Particles.Charge[a, i]);
-        public static double Distance(this Space space, int a) => Sum(space.Axis, i => Math.Pow(space.Particles.Position[a, i] - space.Particles.Momentum[a, i], 2));
-        public static double Force(this Space space, int a, int b) => space.Charge(a, b) / space.Distance(a, b);
-        public static double Charge(this Space space, int a, int b) => Mul(space.Charges, i => space.Particles.Charge[a, i] * space.Particles.Charge[b, i]);
-        public static double Distance(this Space space, int a, int b) => Sum(space.Axis, i => Math.Pow(space.Particles.Position[a, i] - space.Particles.Position[b, i], 2));
+        public static double Force(this Space space, int f, int a) => 1.0 / (space.SquaredDistance(f, a) + 1.0) * space.Fields.Strength[f];
+        public static double Force(this Space space, int f, int a, int b) => space.Force(f, a) * space.Force(f, b) * space.Temper;
+        public static double SquaredDistance(this Space space, int a, int b) => Sum(space.Axis, i => Math.Pow(space.Fields.Position[a, i] - space.Fields.Position[b, i], 2));
         public static double Sum(int count, Func<int, double> f) => Enumerable.Range(0, count).Aggregate(0.0, (acc, i) => acc += f(i));
-        public static double Sub(int count, Func<int, double> f) => Enumerable.Range(0, count).Aggregate(0.0, (acc, i) => acc -= f(i));
-        public static double Mul(int count, Func<int, double> f) => Enumerable.Range(0, count).Aggregate(1.0, (acc, i) => acc *= f(i));
-        public static double Div(int count, Func<int, double> f) => Enumerable.Range(0, count).Aggregate(1.0, (acc, i) => acc /= f(i));
     }
 }

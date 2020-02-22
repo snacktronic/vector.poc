@@ -25,7 +25,7 @@ namespace Lib.QLogic
 
         public Circuit(int inputs, int outputs, int symbols)
         {
-            _mental = new Space { Axis = 3, Charges = 1 }
+            _mental = new Space { Axis = 3, Forces = 1 }
                 .Define(inputs,  out Inputs)
                 .Define(outputs, out Outputs)
                 .Define(symbols, out Symbols)
@@ -55,7 +55,7 @@ namespace Lib.QLogic
         {
             for (var i = 0; i < Inputs.Length; i++)
             {
-                _mental.Charge(Inputs, i, 0, inputs[i]);
+                _mental.SetStrength(Inputs, i, inputs[i]);
             }
 
             _mental.Temper =  1.0 / -(1.0+inputs.Sum( i => i * i)+1);

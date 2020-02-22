@@ -31,5 +31,6 @@ namespace Lib.QMath.Model
             Max = Offset + Length;
         }
         public IEnumerable<T> Select<T>(Func<int, T> f) => Enumerable.Range(Offset, Max).Select(f);
+        public IEnumerable<int> Range => Enumerable.Range(Offset, Max);
     }
 }
