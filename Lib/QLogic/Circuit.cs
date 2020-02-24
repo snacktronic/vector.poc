@@ -18,14 +18,15 @@ namespace Lib.QLogic
     }
     public class Circuit
     {
-        private Space _mental;
+        public Space Internals => _internals;
+        private Space _internals;
         private readonly Segment _inputs;
         private readonly Segment _outputs;
         private readonly Segment _symbols;
 
         public Circuit(int inputs, int outputs, int symbols)
         {
-            _mental = new Space (axis:3)
+            _internals = new Space (axis:2)
                 .Define(inputs,  out _inputs)
                 .Define(outputs, out _outputs)
                 .Define(symbols, out _symbols)
@@ -35,7 +36,7 @@ namespace Lib.QLogic
         public int[] Translate()
         {
             var translation = new int[_outputs.Length];
-            var distance = _mental.SquaredDistance(_outputs, _symbols);
+            var distance = _internals.SquaredDistance(_outputs, _symbols);
             for (var o = 0; o < _outputs.Length; o++)
             {
                 var min = double.MaxValue;
@@ -55,19 +56,14 @@ namespace Lib.QLogic
         {
             for (var i = 0; i < _inputs.Length; i++)
             {
-                _mental.SetStrength(_inputs, i, inputs[i]);
+                _internals.SetStrength(_inputs, i, inputs[i]);
             }
-
-            _mental.Temper =  1.0 / -(1.0+inputs.Sum( i => i * i)+1);
         }
 
         public double Execute()
         {
-            if (_mental.Temper > 0)
-            {
-                _mental.Eval(_inputs);
-            }
-            return 1.0 -_mental.Temper;
+            _internals.Eval(_inputs);
+            return 1.0 -_internals.Temper;
         }
     }
 }

@@ -28,7 +28,7 @@ namespace UI.UserControls
 
         private void HandleExecuteCommand(object parameters)
         {
-            switch(parameters)
+            switch (parameters)
             {
                 case "AddLine":
                     AddLine();
@@ -36,7 +36,44 @@ namespace UI.UserControls
                 case "Animate":
                     Animate();
                     break;
+                case "Eval":
+                    UI.Shared.Eval();
+                    Update();
+                    break;
+                case "Initialize":
+                    Initialize();
+                    break;
             }
+        }
+
+        private void Update()
+        {
+            var internals = UI.Shared.Circuit.Internals;
+            var lines = _spaceViewModel.Shapes.ToArray();
+            for (var i = 0; i < lines.Length; i++)
+            {
+                var line = lines[i];
+                var coll = (RangeObservableCollection<Line>)_spaceViewModel.Shapes;
+                coll.SuppressNotification = true;
+                lock (line)
+                {
+                    line.X1 = 1000 + internals.Fields.Position[i, 0];
+                    line.Y1 = 500  + internals.Fields.Position[i, 1];
+                    line.X2 = line.X1 + internals.Fields.Direction[i, 0];
+                    line.Y2 = line.Y1 + internals.Fields.Direction[i, 1];
+                }
+                coll.SuppressNotification = false;
+            }
+        }
+
+        private void Initialize()
+        {
+            var internals = UI.Shared.Circuit.Internals;
+            for (var i = 0; i < internals.Size; i++)
+            {
+                _spaceViewModel.AddLine();
+            }
+            Update();
         }
 
         private void Animate()
@@ -52,26 +89,28 @@ namespace UI.UserControls
 
                         //App.Current.Dispatcher.Invoke(() =>
                         //{
-                            var coll = (RangeObservableCollection<Line>) _spaceViewModel.Shapes;
-                            coll.SuppressNotification = true;
-                            lock (i)
-                            {
-                                i.X1 += rnd.Next(10);
-                                i.Y1 += rnd.Next(10);
-                                i.X2 += rnd.Next(10);
-                                i.Y2 += rnd.Next(10);
-                            }
-                            coll.SuppressNotification = false;
+                        var coll = (RangeObservableCollection<Line>) _spaceViewModel.Shapes;
+                        coll.SuppressNotification = true;
+                        lock (i)
+                        {
+                            i.X1 += rnd.Next(10);
+                            i.Y1 += rnd.Next(10);
+                            i.X2 += rnd.Next(10);
+                            i.Y2 += rnd.Next(10);
+                        }
+
+                        coll.SuppressNotification = false;
                         //});
                     }
                 }
             }
+
             //);
         }
-
         public void AddLine()
         {
             _spaceViewModel.AddLine();
         }
     }
 }
+    
