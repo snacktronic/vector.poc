@@ -19,12 +19,14 @@ namespace UI
             Circuit = new Circuit(Inputs.Length, Outputs.Length, Symbols.Length);
         }
 
+        private static double min = double.MaxValue;
         public static double Eval()
         {
             Outputs = Circuit.Translate(Symbols);
             Inputs = constraint(Expected, Outputs);
             Circuit.Set(Inputs);
-            return Circuit.Execute();
+            Circuit.Execute();
+            return min; 
         }
 
         private static double[] constraint(char[] expected, char[] outputs)

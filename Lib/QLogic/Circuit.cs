@@ -63,7 +63,7 @@ namespace Lib.QLogic
         public double Execute()
         {
             _internals.Eval(_inputs);
-            return 1.0 -_internals.Temper;
+            return _internals.Temper;
         }
     }
 }

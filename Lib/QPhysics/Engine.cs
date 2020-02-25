@@ -157,7 +157,7 @@ namespace Lib.QPhysics
             var t = space.Temper;
             var k = 1/(t*x+1);
             var v = s * (Math.Tanh(Math.PI * x) * (k - t) * (1 - t));
-            return v;
+            return - Math.Tanh(1.0 / (1+x)) * s;
         }
         public static double Strength(this Space space, int f, int a)
         {
