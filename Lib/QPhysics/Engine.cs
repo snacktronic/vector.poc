@@ -14,13 +14,13 @@ namespace Lib.QPhysics
     public class Space
     {
         public int Size { get; set; }
-        public int Axis { get; set; }
+        public int Axes { get; set; }
         // t=1-c^2/C^2
         public double Temper { get; set; }
         public Fields Fields { get; set; }
-        public Space(int axis)
+        public Space(int axes)
         {
-            Axis = axis;
+            Axes = axes;
         }
     }
 
@@ -43,14 +43,14 @@ namespace Lib.QPhysics
                 space.Fields = new Fields
                 {
                     Strength = new double[space.Size],
-                    Position = new double[space.Size, space.Axis],
-                    Direction = new double[space.Size, space.Axis]
+                    Position = new double[space.Size, space.Axes],
+                    Direction = new double[space.Size, space.Axes]
                     
                 };
 
                 for (var i = 0; i < space.Size; i++)
                 {
-                    for (var j = 0; j < space.Axis; j++)
+                    for (var j = 0; j < space.Axes; j++)
                     {
                         space.Fields.Position[i, j] = seed.NextDouble() * 2.0 - 1.0;
                     }
@@ -96,15 +96,15 @@ namespace Lib.QPhysics
             lock (space)
             {
                 space.Temper = forces.Range.Sum(f=>space.Fields.Strength[f]) / forces.Length;
-                var acc = new double[space.Size, space.Axis];
+                var acc = new double[space.Size, space.Axes];
 
                 for (var a = 0; a < space.Size; a++)
                 {
-                    for (var i = 0; i < space.Axis; i++)
+                    for (var axis = 0; axis < space.Axes; axis++)
                     {
                         foreach (var f in forces.Range)
                         {
-                            acc[a, i] += (space.Fields.Position[a, i] - space.Fields.Direction[a, i]) * space.Strength(f,  a);
+                            acc[a, axis] += space.Velocity(f, a, axis);
                         }
                     }
                 }
@@ -113,7 +113,7 @@ namespace Lib.QPhysics
                 {
                     for (var b = 0; b < space.Size; b++)
                     {
-                        for (var i = 0; i < space.Axis; i++)
+                        for (var i = 0; i < space.Axes; i++)
                         {
                             foreach (var f in forces.Range)
                             {
@@ -125,7 +125,7 @@ namespace Lib.QPhysics
 
                 for (var a = 0; a < space.Size; a++)
                 {
-                    for (var i = 0; i < space.Axis; i++)
+                    for (var i = 0; i < space.Axes; i++)
                     {
                         space.Fields.Position[a, i] += acc[a, i];
                     }
@@ -156,10 +156,25 @@ namespace Lib.QPhysics
             var x = space.SquaredDistance(a,b);
             var t = space.Temper;
             var k = 1/(t*x+1);
-            return s * (Math.Tanh(Math.PI * x) * (k - t) * (1 - t));
+            var v = s * (Math.Tanh(Math.PI * x) * (k - t) * (1 - t));
+            return v;
         }
-        public static double Strength(this Space space, int f, int a) => 1.0 / (space.SquaredDistance(f, a) + 1.0) * space.Fields.Strength[f];
-        public static double SquaredDistance(this Space space, int a, int b) => Sum(space.Axis, i => Math.Pow(space.Fields.Position[a, i] - space.Fields.Position[b, i], 2));
+        public static double Strength(this Space space, int f, int a)
+        {
+            var x = space.SquaredDistance(f, a);
+            var s = space.Fields.Strength[f];
+            var v = 1.0 / (x + 1.0) * s;
+            return v;
+        }
+        public static double Velocity(this Space space, int f, int a, int axis)
+        {
+            var s = space.Strength(f, a);
+            var x = space.Fields.Position[a, axis] - space.Fields.Direction[a, axis];
+            var v = x * (1.0 / (x*x + 1.0) * s);
+            return v;                 
+        }
+
+        public static double SquaredDistance(this Space space, int a, int b) => Sum(space.Axes, i => Math.Pow(space.Fields.Position[a, i] - space.Fields.Position[b, i], 2));
         public static double Sum(int count, Func<int, double> f) => Enumerable.Range(0, count).Aggregate(0.0, (acc, i) => acc += f(i));
     }
 }

@@ -26,7 +26,7 @@ namespace Lib.QLogic
 
         public Circuit(int inputs, int outputs, int symbols)
         {
-            _internals = new Space (axis:2)
+            _internals = new Space (axes:2)
                 .Define(inputs,  out _inputs)
                 .Define(outputs, out _outputs)
                 .Define(symbols, out _symbols)
