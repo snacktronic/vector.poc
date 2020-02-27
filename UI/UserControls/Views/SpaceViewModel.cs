@@ -22,13 +22,7 @@ namespace UI.UserControls.Views
         private ObservableCollection<Line> _shapes;
         public SpaceViewModel()
         {
-            _shapes = new RangeObservableCollection<Line>();
-            
-            for (int i = 0; i < 10; i++)
-            {
-                AddLine();
-            }
-   
+            _shapes = new RangeObservableCollection<Line>();            
         }
 
         public void AddLine()
@@ -37,6 +31,11 @@ namespace UI.UserControls.Views
             line.Stroke = Brushes.Cyan;
             line.StrokeThickness = 2;
             _shapes.Add(line);            
+        }
+
+        public void Clear()
+        {
+            _shapes.Clear();
         }
 
         public ObservableCollection<Line> Shapes => _shapes;

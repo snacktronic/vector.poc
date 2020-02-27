@@ -55,6 +55,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Core\Notifier.cs" />
     <Compile Include="Core\RangeObservableCollection.cs" />
     <Compile Include="Shared.cs" />
     <Compile Include="UserControls\Commands\Command.cs" />
@@ -64,7 +65,6 @@
     <Compile Include="UserControls\Commands\RelayCommand.cs" />
     <Compile Include="UserControls\Commands\Render.cs" />
     <Compile Include="UserControls\DataContext.cs" />
-    <Compile Include="UserControls\Shared.cs" />
     <Compile Include="UserControls\ToolBars\MainToolBar.xaml.cs">
       <DependentUpon>MainToolBar.xaml</DependentUpon>
     </Compile>

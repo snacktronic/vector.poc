@@ -20,7 +20,8 @@
         <ToggleButton Content="Y" Padding="3,3,3,3" Margin="3,3,3,3"/>
         <ToggleButton Content="Z" Padding="3,3,3,3" Margin="3,3,3,3"/>
         <RepeatButton  Content="Eval" Padding="3,3,3,3" Margin="3,3,3,3" Command="{Binding ExecuteCommand}" CommandParameter="Eval" Interval="1"/>
-        <Button Content="Initialize" Padding="3,3,3,3" Margin="3,3,3,3" Command="{Binding Commands.Clear}" CommandParameter="Initialize"/>
+        <Button Content="Initialize" Padding="3,3,3,3" Margin="3,3,3,3" Command="{Binding ExecuteCommand}" CommandParameter="Initialize"/>
+        <TextBox Text="{Binding Solution, Mode=OneWay}" VerticalAlignment="Top" Width="200" Height="26" />
 
     </ToolBarOverflowPanel>
 </UserControl>

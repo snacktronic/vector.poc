@@ -9,13 +9,6 @@ using System.Threading.Tasks;
 
 namespace Lib.QLogic
 {
-    public static class CircuitExtensions
-    {
-        public static T[] Translate<T>(this Circuit circuit, T[] symbols)
-        {
-            return circuit.Translate().Select(t => symbols[t]).ToArray();
-        }
-    }
     public class Circuit
     {
         public Space Internals => _internals;
@@ -50,6 +43,11 @@ namespace Lib.QLogic
                 }   
             }
             return translation;
+        }
+
+        public T[] Translate<T>(T[] symbols)
+        {
+            return Translate().Select(t => symbols[t]).ToArray();
         }
 
         public void Set(double[] inputs)

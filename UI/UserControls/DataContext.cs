@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,8 +13,10 @@ using UI.UserControls.Views;
 
 namespace UI.UserControls
 {
-    public class DataContext : FrameworkElement, ISpaceViewModel
+    public class DataContext : FrameworkElement, ISpaceViewModel, INotifyPropertyChanged
     {
+        private Notifier notifier;
+        public string Solution { get; private set; } = "Aboo";
         private SpaceViewModel _spaceViewModel = new SpaceViewModel();
         public FrameworkElement Owner { get; private set; }
         public RelayCommand ExecuteCommand { get; private set; }
@@ -22,8 +25,22 @@ namespace UI.UserControls
 
         public DataContext(FrameworkElement owner)
         {
+            notifier = new Notifier(owner);
             Owner = owner;
             ExecuteCommand = new RelayCommand(HandleExecuteCommand);
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged
+        {
+            add
+            {
+                ((INotifyPropertyChanged)notifier).PropertyChanged += value;
+            }
+
+            remove
+            {
+                ((INotifyPropertyChanged)notifier).PropertyChanged -= value;
+            }
         }
 
         private void HandleExecuteCommand(object parameters)
@@ -65,10 +82,13 @@ namespace UI.UserControls
                 }
                 coll.SuppressNotification = false;
             }
+            Solution = new string(Shared.Circuit.Translate<char>(Shared.Symbols).ToArray());
+            notifier.NotifyPropertyChanged(nameof(Solution));
         }
 
         private void Initialize()
         {
+            _spaceViewModel.Clear();
             var internals = UI.Shared.Circuit.Internals;
             for (var i = 0; i < internals.Size; i++)
             {
