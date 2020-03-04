@@ -13,6 +13,7 @@ namespace Lib.QLogic
     {
         public Space Internals => _internals;
         private Space _internals;
+        private readonly Segment _origin;
         private readonly Segment _inputs;
         private readonly Segment _outputs;
         private readonly Segment _symbols;
@@ -20,7 +21,8 @@ namespace Lib.QLogic
         public Circuit(int inputs, int outputs, int symbols)
         {
             _internals = new Space (axes:2)
-                .Define(inputs,  out _inputs)
+                .Define(1, out _origin)
+                .Define((inputs * inputs + inputs)/2,  out _inputs)
                 .Define(outputs, out _outputs)
                 .Define(symbols, out _symbols)
                 .Initialize(new Random());
@@ -52,7 +54,18 @@ namespace Lib.QLogic
 
         public void Set(double[] inputs)
         {
-            for (var i = 0; i < _inputs.Length; i++)
+            var cross = new List<double>();
+            for (var i = 0; i < inputs.Length; i++)
+            {
+                for (var j = i + 1; j < inputs.Length; j++)
+                {
+                    cross.Add(inputs[i] + inputs[j] > 0.0 ? 0.0 : -1.0);
+                }
+            }
+
+            inputs = cross.ToArray();
+
+            for (int i = 0; i < inputs.Length; i++)
             {
                 _internals.SetStrength(_inputs, i, inputs[i]);
             }
@@ -60,6 +73,12 @@ namespace Lib.QLogic
 
         public double Execute()
         {
+            for (int i = 0; i < _internals.Axes; i++)
+            {
+                _internals.Fields.Position[_origin.Offset, i] = 0.0;
+                _internals.Fields.Direction[_origin.Offset, i] = 0.0;
+            }
+
             _internals.Eval(_inputs);
             return _internals.Temper;
         }

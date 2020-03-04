@@ -67,6 +67,7 @@ namespace UI.UserControls
 
         private void Update()
         {
+            var scale = 0.25;
             var internals = UI.Shared.Circuit.Internals;
             
             var lines = _spaceViewModel.Shapes.ToArray();
@@ -77,10 +78,10 @@ namespace UI.UserControls
                 coll.SuppressNotification = true;
                 lock (line)
                 {
-                    line.X1 = 500 + 10*internals.Fields.Position[i, 0];
-                    line.Y1 = 300 + 10*internals.Fields.Position[i, 1];
-                    line.X2 = line.X1 + 10*internals.Fields.Direction[i, 0];
-                    line.Y2 = line.Y1 + 10*internals.Fields.Direction[i, 1];
+                    line.X1 = 500 + scale*internals.Fields.Position[i, 0];
+                    line.Y1 = 300 + scale*internals.Fields.Position[i, 1];
+                    line.X2 = line.X1 + scale*internals.Fields.Direction[i, 0];
+                    line.Y2 = line.Y1 + scale*internals.Fields.Direction[i, 1];
                 }
                 coll.SuppressNotification = false;
             }

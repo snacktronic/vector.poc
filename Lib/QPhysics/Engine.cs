@@ -58,7 +58,7 @@ namespace Lib.QPhysics
 
                 for (var i = 0; i < space.Size; i++)
                 {
-                    space.Fields.Strength[i] = 1.0;
+                    space.Fields.Strength[i] = -1.0;
                 }
                 return space;
             }
