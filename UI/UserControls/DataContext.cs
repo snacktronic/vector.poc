@@ -6,7 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Shapes;
+using Lib.QLogic;
 using UI.Core;
 using UI.UserControls.Commands;
 using UI.UserControls.Views;
@@ -75,8 +77,8 @@ namespace UI.UserControls
                 coll.SuppressNotification = true;
                 lock (line)
                 {
-                    line.X1 = 1000 + 10*internals.Fields.Position[i, 0];
-                    line.Y1 = 500  + 10*internals.Fields.Position[i, 1];
+                    line.X1 = 500 + 10*internals.Fields.Position[i, 0];
+                    line.Y1 = 300 + 10*internals.Fields.Position[i, 1];
                     line.X2 = line.X1 + 10*internals.Fields.Direction[i, 0];
                     line.Y2 = line.Y1 + 10*internals.Fields.Direction[i, 1];
                 }
@@ -84,6 +86,7 @@ namespace UI.UserControls
             }
             Solution = new string(Shared.Circuit.Translate<char>(Shared.Symbols).ToArray());
             notifier.NotifyPropertyChanged(nameof(Solution));
+            Console.WriteLine(Solution);
         }
 
         private void Initialize()

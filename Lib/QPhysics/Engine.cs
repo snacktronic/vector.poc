@@ -93,7 +93,7 @@ namespace Lib.QPhysics
 
         public static Space Eval(this Space space, Segment forces)
         {
-            lock (space)
+            //lock (space)
             {
                 space.Temper = forces.Range.Sum(f=>space.Fields.Strength[f]) / forces.Length;
                 var acc = new double[space.Size, space.Axes];
