@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 namespace Lib.PSO
 {
@@ -14,15 +13,17 @@ namespace Lib.PSO
         double[,]      _cost, _best_cost, _worst_cost;
         double[,][]    _best, _worst;             
         int            _particles, _dimensions;
+        double         _min, _max;
         Coefficients   _coefficients;
         Cost[]         _functions;
         Exit           _exit;
         Random         _rnd;
 
-        public Swarm(int particles, int dimensions, int seed, Exit exit, Coefficients coefficients, params Cost[] functions)
+        public Swarm(int particles, int dimensions, double min, double max, int seed, Exit exit, Coefficients coefficients, params Cost[] functions)
         {
             _rnd               = new Random(seed);                                    // Random value provider for samples.
-                               
+            _min               = min;
+            _max               = max;
             _particles         = particles;                                           // Number of samples.
             _dimensions        = dimensions;                                          // Level of freedom.
             _coefficients      = coefficients;                                        // Scalar for each 6 terms
@@ -45,11 +46,16 @@ namespace Lib.PSO
             _global_worst      = new double[functions.Length][];                      // Global worst solution
             _global_worst_cost = new double[functions.Length];                        // Global worst cost
 
+
             // Initialize Particles
             for (var p = 0; p < particles; p++)
             {
                 _position[p] = new double[dimensions];
-                _velocity[p] = Enumerable.Range(0,dimensions).Select(d => _rnd.NextDouble() - 0.5).ToArray();
+                _velocity[p] = new double[dimensions];
+                for (var d = 0; d < dimensions; d++)
+                {
+                    _velocity[p][d] = _rnd.NextDouble() - 0.5;
+                }
             }
 
             for (var f = 0; f < _functions.Length; f++)
@@ -58,7 +64,7 @@ namespace Lib.PSO
                 _global_best[f] = (double[]) template.Clone();
                 _global_worst[f] = (double[]) template.Clone();
 
-                var cost = _functions[f](template);
+                var cost = _functions[f](Solution(template));
                 _global_worst_cost[f] = cost;
                 _global_best_cost[f] = cost;
 
@@ -69,13 +75,28 @@ namespace Lib.PSO
             }
         }
 
+        private double[] Solution(double[] position)
+        {
+            var scale = _max - _min;
+            var result = new double[_dimensions];
+            
+            for (var d = 0; d < _dimensions; d++)
+            {
+                result[d] *= scale;
+                result[d] += _min;
+            }
+
+            return result;
+        }
+
         public void Charge()
         {
             // Coefficients
-            var c = Enumerable
-                .Range(0, _functions.Length)
-                .Select(f =>_coefficients(f))
-                .ToArray();
+            var c = new double[_functions.Length][];
+            for (var f = 0; f < _functions.Length; f++)
+            {
+                c[f] = _coefficients(f);
+            }
 
             for (var p = 0; p < _particles; p++)
             {
@@ -102,13 +123,16 @@ namespace Lib.PSO
 
                     // Update position
                     _position[p][d] += v;
+                    _position[p][d] %= 1.0;
                 }
 
-                // Update global and personal solutions
+                // Update global and personal best and worst cases.
                 for (var f = 0; f < _functions.Length; f++)
                 {
-                    _cost[p,f] = _functions[f](_position[p]);
+                    var solution = Solution(_position[p]);
+                    _cost[p,f] = _functions[f](solution);
                     _mass[p] = 0.5 * _mass[p] + _cost[p, f]; // += 1.0 / (_mass[p] - cost)^2 # Div by ZERO error
+
                     if (_cost[p, f] > _best_cost[p, f])
                     {
                         _best[p, f] = _position[p];
