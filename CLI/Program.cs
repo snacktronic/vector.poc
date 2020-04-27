@@ -5,6 +5,7 @@ using Lib.Signal.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -25,13 +26,23 @@ namespace CLI
         private static void TestPSO()
         {
             var cnt = 0;
-            var swarm = new Lib.PSO.Swarm(100, 5, -10.0, 10.0, 1, 
-                () => ++cnt > 1000, 
-                f => new [] {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0},
-                solution => solution.Sum(x => x*x) // Sphere
+            
+            var swarm = new Lib.PSO.Swarm(particles:10, dimensions:5, invert: false, min:-10.0, max:10.0, seed:1, 
+                exit:() => ++cnt > 10000, 
+                coefficients:f => new [] {0.01, 1.0, 1.0, 1.0, 1.0, 1.0},
+                solution => solution.Sum(x => x*x)  // Sphere
                 );
 
-            swarm.Better += (cost, solution) => Console.WriteLine($"Cost: {cost:C}");
+            swarm.Minimum += (function, cost, solution) =>
+            {
+                Console.WriteLine($"Minimum[{function}]: {cost:C}"); 
+            };
+
+            swarm.Maximum += (function, cost, solution) =>
+            {
+                Console.WriteLine($"Maximum[{function}]: {cost:C}");
+            };
+
             swarm.Search();
         }
 
