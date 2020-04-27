@@ -16,6 +16,27 @@ namespace CLI
     {
         static void Main(string[] args)
         {
+            //Test001();
+            TestPSO();
+            Console.WriteLine("EOP!");
+            Console.ReadLine();
+        }
+
+        private static void TestPSO()
+        {
+            var cnt = 0;
+            var swarm = new Lib.PSO.Swarm(100, 5, -10.0, 10.0, 1, 
+                () => ++cnt > 1000, 
+                f => new [] {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0},
+                solution => solution.Sum(x => x*x) // Sphere
+                );
+
+            swarm.Better += (cost, solution) => Console.WriteLine($"Cost: {cost:C}");
+            swarm.Search();
+        }
+
+        private static void Test001()
+        {
             var expected = "Hello World!".ToCharArray();
             var symbols = expected.Distinct().ToArray();
             var outputs = new char[expected.Length];
@@ -31,8 +52,6 @@ namespace CLI
             } while (circuit.Execute() > 0);
 
             Console.WriteLine(new string(outputs));
-            Console.WriteLine("EOP!");
-            Console.ReadLine();
         }
 
         private static double[] constraint(char[] expected, char[] outputs)
