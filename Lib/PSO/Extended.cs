@@ -27,10 +27,9 @@ namespace Lib.PSO
             coefficients[3] *= 2.05;
 
             _temperature = _prevCost > _global_minimum_cost[0]
-                ? 1.0
-                : _temperature * 1.0000001;
-
-           
+                    ? 1.0 
+                    : _temperature * 1.000000000000001
+                ;
 
             coefficients[0] *= _temperature;
             Console.WriteLine("Coef: " + coefficients[0]);
