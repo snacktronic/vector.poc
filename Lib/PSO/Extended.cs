@@ -18,7 +18,7 @@ namespace Lib.PSO
         {
             var coefficients = base.Coefficients(f);
             coefficients[0] = 
-            coefficients[1] *=
+            coefficients[1] =
             coefficients[2] =
             coefficients[3] =
             1.0 / (1.0 + _global_minimum_cost[f] * _global_minimum_cost[f]);
