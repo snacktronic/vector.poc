@@ -135,9 +135,9 @@ namespace Lib.PSO
                         // Charging Terms
                         v += c[f][0] * c[f][1] * _velocity[p][d];                           // Inertia
                         v += _charge * r * c[f][0] * c[f][2] * (1.0 + m / (1.0 + d1 * d1)); // Cognitive motivator
-                        v += _charge * r * c[f][0] * c[f][3] * (1.0 + m / (1.0 + d2 * d2)); // Global motivator
+                        v += _charge * c[f][0] * c[f][3] * (1.0 + m / (1.0 + d2 * d2)); // Global motivator
                         v -= _charge * r * c[f][0] * c[f][4] * (1.0 + m / (1.0 + d3 * d3)); // Cognitive lesson
-                        v -= _charge * r * c[f][0] * c[f][5] * (1.0 + m / (1.0 + d4 * d4)); // Global lesson
+                        v -= _charge * c[f][0] * c[f][5] * (1.0 + m / (1.0 + d4 * d4)); // Global lesson
                     }
 
                     _velocity[p][d] = v;

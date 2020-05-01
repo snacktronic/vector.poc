@@ -29,11 +29,12 @@ namespace CLI
             var i = 0;
             var exit = false;
             
-            var swarm = new Lib.PSO.Extended(particles:100, dimensions:7, invert: false, min:-10.0, max:10.0, seed:1, 
-                exit:() => exit || ++i > 100000,
+            var swarm = new Lib.PSO.Extended(particles:100, dimensions:10, invert: true, min:-10.0, max:10.0, seed:1, 
+                exit:() => exit,// || ++i > 100000,
                 new[]
                     {
-                        new Cost(s => s.Sum(x => x*x)), // Sphere
+                        //new Cost(s => s.Sum(x => x*x)), // Sphere
+                        new Cost(s => Enumerable.Range(0, 10).Sum(x => (s[x] - (1+x*2)) * (s[x] - (1+x*2)))) // Ordered
                         //new Cost(s => s.Max(x=> x*x )),
                         //new Cost(s => s.Min(x => x*x)),
                         //new Cost(s => s.Average(x => x*x))

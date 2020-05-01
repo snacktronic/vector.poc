@@ -32,7 +32,6 @@ namespace Lib.PSO
                 ;
 
             coefficients[0] *= _temperature;
-            Console.WriteLine("Coef: " + coefficients[0]);
             return coefficients;
         }
     }
