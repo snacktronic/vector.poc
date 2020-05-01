@@ -25,22 +25,24 @@ namespace CLI
 
         private static void TestPSO()
         {
-            var cnt = 0;
+            var i = 0;
             
-            var swarm = new Lib.PSO.Swarm(particles:10, dimensions:5, invert: false, min:-10.0, max:10.0, seed:1, 
-                exit:() => ++cnt > 10000, 
+            var swarm = new Lib.PSO.Swarm(particles:100, dimensions:7, invert: false, min:-10.0, max:10.0, seed:1, 
+                exit:() => ++i > 10000, 
                 coefficients:f => new [] {0.01, 1.0, 1.0, 1.0, 1.0, 1.0},
                 solution => solution.Sum(x => x*x)  // Sphere
                 );
 
             swarm.Minimum += (function, cost, solution) =>
             {
-                Console.WriteLine($"Minimum[{function}]: {cost:C}"); 
+                var j = i;
+                Console.WriteLine($"#{j} Minimum[{function}]: {cost:C} [{string.Join(",",solution)}]"); 
             };
 
             swarm.Maximum += (function, cost, solution) =>
             {
-                Console.WriteLine($"Maximum[{function}]: {cost:C}");
+                var j = i;
+                Console.WriteLine($"#{j} Maximum[{function}]: {cost:C} [{string.Join(",", solution)}]");
             };
 
             swarm.Search();
