@@ -4,20 +4,20 @@ namespace Lib.PSO
 {
     public delegate bool     Exit();
     public delegate double   Cost(double[] solution);
-    public delegate double[] Coefficients(int cost);
+    //public delegate double[] Coefficients(int cost, double[] solution);
 
     public class Swarm
     {
-        double[]       _mass, _global_minimum_cost, _global_maximum_cost;
-        double[][]     _position, _velocity, _global_minimum, _global_maximum;
-        double[,]      _minimum_cost, _maximum_cost;
-        double[,][]    _minimum, _maximum;             
-        int            _particles, _dimensions;
-        double         _min, _max, _charge;
-        Coefficients   _coefficients;
-        Cost[]         _functions;
-        Exit           _exit;
-        Random         _rnd;
+        protected double[]       _mass, _global_minimum_cost, _global_maximum_cost;
+        protected double[][]     _position, _velocity, _global_minimum, _global_maximum;
+        protected double[,]      _minimum_cost, _maximum_cost;
+        protected double[,][]    _minimum, _maximum;             
+        protected int            _particles, _dimensions;
+        protected double         _min, _max, _charge;
+        //protected Coefficients   _coefficients;
+        protected Cost[]         _functions;
+        protected Exit           _exit;
+        protected Random         _rnd;
         public static double Mod(double a, double b = 1.0)
         {
             var c = a % b;
@@ -34,7 +34,7 @@ namespace Lib.PSO
 
 
         public Swarm(int particles, int dimensions, bool invert, double min, double max, int seed, Exit exit,
-            Coefficients coefficients, params Cost[] functions)
+            params Cost[] functions)
         {
             _rnd                = new Random(seed);                                    // Random value provider for samples.
             _exit               = exit;                                                // Exit condition
@@ -43,7 +43,6 @@ namespace Lib.PSO
             _charge             = invert ? -1.0 : 1.0;                                 // Affects velocity behaviour
             _particles          = particles;                                           // Number of samples.
             _dimensions         = dimensions;                                          // Level of freedom.
-            _coefficients       = coefficients;                                        // Scalar for each 6 terms
             _functions          = functions;                                           // Cost functions
                                 
             _mass               = new double[particles];                               // Particle's mass
@@ -61,7 +60,6 @@ namespace Lib.PSO
 
             _global_maximum      = new double[functions.Length][];                     // Global worst solution
             _global_maximum_cost = new double[functions.Length];                       // Global worst cost
-
 
             // Initialize Particles
             for (var p = 0; p < particles; p++)
@@ -92,7 +90,7 @@ namespace Lib.PSO
             }
         }
 
-        private double[] Solution(double[] position)
+        protected double[] Solution(double[] position)
         {
             var scale = _max - _min;
             var result = (double[])position.Clone();
@@ -112,7 +110,7 @@ namespace Lib.PSO
             var c = new double[_functions.Length][];
             for (var f = 0; f < _functions.Length; f++)
             {
-                c[f] = _coefficients(f);
+                c[f] = Coefficients(f);
             }
 
             for (var p = 0; p < _particles; p++)
@@ -147,12 +145,13 @@ namespace Lib.PSO
                     _position[p][d] = Mod(_position[p][d] + v);
                 }
 
+                _mass[p] = 0;
                 // Update global and personal best and worst cases.
                 for (var f = 0; f < _functions.Length; f++)
                 {
                     var solution = Solution(_position[p]);
                     var cost = _functions[f](solution);
-                    _mass[p] = cost; // += 1.0 / (_mass[p] - cost)^2 # Div by ZERO error
+                    _mass[p] += cost; // += 1.0 / (_mass[p] - cost)^2 # Div by ZERO error
 
                     if (cost < _minimum_cost[p, f])
                     {
@@ -180,6 +179,19 @@ namespace Lib.PSO
                     } 
                 }
             }
+        }
+        
+        protected virtual double[] Coefficients(int f)
+        {
+            return new[]
+            {
+                1.0, // Global Temperature 
+                1.0, // Inertia
+                1.0, // Personal Motivation
+                1.0, // Swarm Motivation
+                1.0, // Personal Lesson
+                1.0  // Swarm Lesson
+            };
         }
 
         public void Search()

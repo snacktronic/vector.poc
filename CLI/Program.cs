@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using Lib.PSO;
 
 namespace CLI
 {
@@ -26,21 +27,32 @@ namespace CLI
         private static void TestPSO()
         {
             var i = 0;
+            var exit = false;
             
-            var swarm = new Lib.PSO.Swarm(particles:100, dimensions:7, invert: false, min:-10.0, max:10.0, seed:1, 
-                exit:() => ++i > 10000, 
-                coefficients:f => new [] {0.01, 1.0, 1.0, 1.0, 1.0, 1.0},
-                solution => solution.Sum(x => x*x)  // Sphere
+            var swarm = new Lib.PSO.Extended(particles:100, dimensions:5, invert: false, min:-10.0, max:10.0, seed:1, 
+                exit:() => exit || ++i > 100000,
+                new[]
+                    {
+                        new Cost(s => s.Sum(x => x*x)), // Sphere
+                        new Cost(s => s.Max(x=> x*x )),
+                        new Cost(s => s.Min(x => x*x)),
+                        new Cost(s => s.Average(x => x*x))
+                    }
+                  //  .Concat(Enumerable.Range(0,10).Select(j => new Cost(s => s[jx*x] * s[j])))
+                    .ToArray()
                 );
 
             swarm.Minimum += (function, cost, solution) =>
             {
+                if (function != 0) return;
+                exit = cost <= 0.0;
                 var j = i;
                 Console.WriteLine($"#{j} Minimum[{function}]: {cost:C} [{string.Join(",",solution)}]"); 
             };
 
             swarm.Maximum += (function, cost, solution) =>
             {
+                if (function != 0) return;
                 var j = i;
                 Console.WriteLine($"#{j} Maximum[{function}]: {cost:C} [{string.Join(",", solution)}]");
             };
