@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Lib.PSO
 {
@@ -8,12 +9,12 @@ namespace Lib.PSO
 
     public class Swarm
     {
-        protected double[]       _mass, _global_minimum_cost, _global_maximum_cost;
-        protected double[][]     _position, _velocity, _global_minimum, _global_maximum;
-        protected double[,]      _minimum_cost, _maximum_cost;
-        protected double[,][]    _minimum, _maximum;             
+        protected double[]       _mass, _global_min_cost, _global_max_cost;
+        protected double[][]     _position, _velocity, _global_min, _global_max;
+        protected double[,]      _min_cost, _max_cost;
+        protected double[,][]    _min, _max;             
         protected int            _particles, _dimensions;
-        protected double         _min, _max, _charge;
+        protected double         _range_min, _range_max, _charge;
         //protected Coefficients   _coefficients;
         protected Cost[]         _functions;
         protected Exit           _exit;
@@ -33,13 +34,13 @@ namespace Lib.PSO
         public event Handle Maximum;
 
 
-        public Swarm(int particles, int dimensions, bool invert, double min, double max, int seed, Exit exit,
+        public Swarm(int particles, int dimensions, bool invert, double rangeMin, double rangeMax, int seed, Exit exit,
             params Cost[] functions)
         {
             _rnd                = new Random(seed);                                    // Random value provider for samples.
             _exit               = exit;                                                // Exit condition
-            _min                = min;                                                 // Solution space min boundary
-            _max                = max;                                                 // Solution space max boundary
+            _range_min          = rangeMin;                                            // Solution space rangeMin boundary
+            _range_max          = rangeMax;                                            // Solution space rangeMax boundary
             _charge             = invert ? -1.0 : 1.0;                                 // Affects velocity behaviour
             _particles          = particles;                                           // Number of samples.
             _dimensions         = dimensions;                                          // Level of freedom.
@@ -49,17 +50,17 @@ namespace Lib.PSO
             _position           = new double[particles][];                             // Particle's current solution
             _velocity           = new double[particles][];                             // Particle's current velocity
                                 
-            _minimum             = new double[particles, functions.Length][];          // Particle's best solution
-            _minimum_cost        = new double[particles, functions.Length];            // Particle's best cost
-                                
-            _maximum             = new double[particles, functions.Length][];          // Particle's worst solution
-            _maximum_cost        = new double[particles, functions.Length];            // Particle's worst cost
-                                
-            _global_minimum      = new double[functions.Length][];                     // Global best solution
-            _global_minimum_cost = new double[functions.Length];                       // Global best cost
+            _min                = new double[particles, functions.Length][];          // Particle's best solution
+            _min_cost           = new double[particles, functions.Length];            // Particle's best cost
+                                   
+            _max                = new double[particles, functions.Length][];          // Particle's worst solution
+            _max_cost           = new double[particles, functions.Length];            // Particle's worst cost
+                                   
+            _global_min         = new double[functions.Length][];                     // Global best solution
+            _global_min_cost    = new double[functions.Length];                       // Global best cost
 
-            _global_maximum      = new double[functions.Length][];                     // Global worst solution
-            _global_maximum_cost = new double[functions.Length];                       // Global worst cost
+            _global_max         = new double[functions.Length][];                     // Global worst solution
+            _global_max_cost    = new double[functions.Length];                       // Global worst cost
 
             // Initialize Particles
             for (var p = 0; p < particles; p++)
@@ -69,123 +70,119 @@ namespace Lib.PSO
                 for (var d = 0; d < dimensions; d++)
                 {
                     _velocity[p][d] = _rnd.NextDouble() - 0.5;
+                    _position[p][d] = _rnd.NextDouble() - 0.5;
                 }
             }
 
             for (var f = 0; f < _functions.Length; f++)
             {
-                _global_minimum[f] = new double[dimensions];
-                _global_maximum[f] = new double[dimensions];
-
+                _global_min[f] = new double[dimensions];
+                _global_max[f] = new double[dimensions];
+                
                 var cost = _functions[f](Solution(new double[dimensions]));
-                _global_minimum_cost[f] = cost;
-                _global_maximum_cost[f] = cost;
+
+                _global_min_cost[f] = cost;
+                _global_max_cost[f] = cost;
 
                 for (var p = 0; p < particles; p++)
                 {
-                    _minimum[p, f] = new double[dimensions];
-                    _maximum[p, f] = new double[dimensions];
-                    _mass[p] = _maximum_cost[p, f] = _minimum_cost[p, f] = cost;
+                    _min[p, f] = new double[dimensions];
+                    _max[p, f] = new double[dimensions];
+                    _mass[p] = _max_cost[p, f] = _min_cost[p, f] = cost;
                 }
             }
         }
 
         protected double[] Solution(double[] position)
         {
-            var scale = _max - _min;
+            var scale = _range_max - _range_min;
             var result = (double[])position.Clone();
             
             for (var d = 0; d < _dimensions; d++)
             {
                 result[d] *= scale;
-                result[d] += _min;
+                result[d] += _range_min;
             }
 
             return result;
         }
 
-        public void Charge()
+        private void Charge(int p, double[][] c)
         {
-            // Coefficients
-            var c = new double[_functions.Length][];
-            for (var f = 0; f < _functions.Length; f++)
+            for (var d = 0; d < _dimensions; d++)
             {
-                c[f] = Coefficients(f);
-            }
-
-            for (var p = 0; p < _particles; p++)
-            {
-                for (var d = 0; d < _dimensions; d++)
-                {
-                    var v = _velocity[p][d];         // Current Velocity
-                    for (var f = 0; f < _functions.Length; f++)
-                    {
-                        // Mass
-                        var m  = _mass[p];
-                        
-                        // Random
-                        var r = _rnd.NextDouble();
-
-                        // Distances
-                        var d1 = _position[p][d] - _minimum[p, f][d];       
-                        var d2 = _position[p][d] - _global_minimum[f][d];   
-                        var d3 = _position[p][d] - _maximum[p, f][d];      
-                        var d4 = _position[p][d] - _global_maximum[f][d];  
-
-                        // Charging Terms
-                        v += c[f][0] * c[f][1] * _velocity[p][d];                           // Inertia
-                        v += _charge * r * c[f][0] * c[f][2] * (1.0 + m / (1.0 + d1 * d1)); // Cognitive motivator
-                        v += _charge * c[f][0] * c[f][3] * (1.0 + m / (1.0 + d2 * d2)); // Global motivator
-                        v -= _charge * r * c[f][0] * c[f][4] * (1.0 + m / (1.0 + d3 * d3)); // Cognitive lesson
-                        v -= _charge * c[f][0] * c[f][5] * (1.0 + m / (1.0 + d4 * d4)); // Global lesson
-                    }
-
-                    _velocity[p][d] = v;
-                    // Update position
-                    _position[p][d] = Mod(_position[p][d] + v);
-                }
-
-                _mass[p] = 0;
-                // Update global and personal best and worst cases.
+                var v = _velocity[p][d];         // Current Velocity
                 for (var f = 0; f < _functions.Length; f++)
                 {
-                    var solution = Solution(_position[p]);
-                    var cost = _functions[f](solution);
-                    _mass[p] += cost; // += 1.0 / (_mass[p] - cost)^2 # Div by ZERO error
+                    // Mass
+                    var m  = _mass[p];
+                    
+                    // Random
+                    var r = _rnd.NextDouble();
 
-                    if (cost < _minimum_cost[p, f])
-                    {
-                        _minimum[p, f] = (double[])_position[p].Clone();
-                        _minimum_cost[p, f] = cost;
+                    // Distances
+                    var d1 = _position[p][d] - _min[p, f][d];
+                    var d2 = _position[p][d] - _global_min[f][d];   
+                    var d3 = _position[p][d] - _max[p, f][d];
+                    var d4 = _position[p][d] - _global_max[f][d];
 
-                        if (!(cost < _global_minimum_cost[f])) continue;
+                    // Charging Terms
+                    v += c[f][0] * c[f][1] * _velocity[p][d];                           // Inertia
+                    v += _charge * r * c[f][0] * c[f][2] * (1.0 + m / (1.0 + d1 * d1)); // Cognitive motivator
+                    v += _charge * r * c[f][0] * c[f][3] * (1.0 + m / (1.0 + d2 * d2)); // Global motivator
+                    v -= _charge * r * c[f][0] * c[f][4] * (1.0 + m / (1.0 + d3 * d3)); // Cognitive lesson
+                    v -= _charge * r * c[f][0] * c[f][5] * (1.0 + m / (1.0 + d4 * d4)); // Global lesson
+                }
 
-                        _global_minimum[f] = _minimum[p, f];
-                        _global_minimum_cost[f] = cost;
+                _velocity[p][d] = Math.Tanh(v);
 
-                        OnMinimum(f, cost, solution);
-                    }
-                    else if (cost > _maximum_cost[p, f])
-                    {
-                        _maximum[p, f] = (double[])_position[p].Clone();
-                        _maximum_cost[p, f] = cost;
+                // Update position
+                _position[p][d] = Mod(_position[p][d] + _velocity[p][d]);
+            }
+        }
 
-                        if (!(cost > _global_maximum_cost[f])) continue;
+        private void UpdateGlobalAndPersonalCases(int p)
+        {
+            _mass[p] = 0;
+            // Update global and personal best and worst cases.
+            for (var f = 0; f < _functions.Length; f++)
+            {
+                var solution = Solution(_position[p]);
+                var cost = _functions[f](solution);
+                _mass[p] += cost; // += 1.0 / (_mass[p] - cost)^2 # Div by ZERO error
 
-                        _global_maximum[f] = _maximum[p, f];
-                        _global_maximum_cost[f] = cost;
+                if (cost < _min_cost[p, f])
+                {
+                    _min[p, f] = (double[]) _position[p].Clone();
+                    _min_cost[p, f] = cost;
 
-                        OnMaximum(f, cost, solution);
-                    } 
+                    if (!(cost < _global_min_cost[f])) continue;
+
+                    _global_min[f] = _min[p, f];
+                    _global_min_cost[f] = cost;
+
+                    OnMinimum(f, cost, solution);
+                }
+                else if (cost > _max_cost[p, f])
+                {
+                    _max[p, f] = (double[]) _position[p].Clone();
+                    _max_cost[p, f] = cost;
+
+                    if (!(cost > _global_max_cost[f])) continue;
+
+                    _global_max[f] = _max[p, f];
+                    _global_max_cost[f] = cost;
+
+                    OnMaximum(f, cost, solution);
                 }
             }
         }
-        
+
         protected virtual double[] Coefficients(int f)
         {
             return new[]
             {
-                1.0, // Global Temperature 
+                1.0, // Temperature 
                 1.0, // Inertia
                 1.0, // Personal Motivation
                 1.0, // Swarm Motivation
@@ -196,9 +193,22 @@ namespace Lib.PSO
 
         public void Search()
         {
-            while (!_exit())
+            // Iteration
+            while (true)
             {
-                Charge();
+                // Coefficients
+                var c = new double[_functions.Length][];
+                for (var f = 0; f < _functions.Length; f++)
+                {
+                    c[f] = Coefficients(f);
+                }
+
+                for (var p = 0; p < _particles; p++)
+                {
+                    Charge(p, c);
+                    UpdateGlobalAndPersonalCases(p);
+                    if (_exit()) return;
+                }
             }
         }
 
