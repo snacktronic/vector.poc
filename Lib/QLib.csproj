@@ -44,6 +44,7 @@
     <Compile Include="PSO\Extended.cs" />
     <Compile Include="PSO\Swarm.cs" />
     <Compile Include="QLogic\Circuit.cs" />
+    <Compile Include="QMath\Extensions.cs" />
     <Compile Include="QMath\Model\Angle.cs" />
     <Compile Include="QMath\Model\Number.cs" />
     <Compile Include="QMath\Model\Radian.cs" />

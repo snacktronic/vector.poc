@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Lib.PSO
+﻿namespace Lib.PSO
 {
     public class Extended : Swarm
     {
-        public Extended(int particles, int dimensions, bool invert, double rangeMin, double rangeMax, int seed, Exit exit, params Cost[] functions) : base(particles, dimensions, invert, rangeMin, rangeMax, seed, exit, functions)
+        public Extended(int particles, int dimensions, double charge, double rangeMin, double rangeMax, int seed, Exit exit, params Cost[] functions) : base(particles, dimensions, charge, rangeMin, rangeMax, seed, exit, functions)
         {
         }
 

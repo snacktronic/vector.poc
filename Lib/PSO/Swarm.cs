@@ -34,14 +34,14 @@ namespace Lib.PSO
         public event Handle Maximum;
 
 
-        public Swarm(int particles, int dimensions, bool invert, double rangeMin, double rangeMax, int seed, Exit exit,
+        public Swarm(int particles, int dimensions, double charge, double rangeMin, double rangeMax, int seed, Exit exit,
             params Cost[] functions)
         {
             _rnd                = new Random(seed);                                    // Random value provider for samples.
             _exit               = exit;                                                // Exit condition
             _range_min          = rangeMin;                                            // Solution space rangeMin boundary
             _range_max          = rangeMax;                                            // Solution space rangeMax boundary
-            _charge             = invert ? -1.0 : 1.0;                                 // Affects velocity behaviour
+            _charge             = charge;                                              // Affects velocity behaviour
             _particles          = particles;                                           // Number of samples.
             _dimensions         = dimensions;                                          // Level of freedom.
             _functions          = functions;                                           // Cost functions
@@ -127,7 +127,7 @@ namespace Lib.PSO
                     var d4 = _position[p][d] - _global_max[f][d];
 
                     // Charging Terms
-                    v += c[f][0] * c[f][1] * _velocity[p][d];                           // Inertia
+                    v += _charge * c[f][0] * c[f][1] * _velocity[p][d];                 // Inertia
                     v += _charge * r * c[f][0] * c[f][2] * (1.0 + m / (1.0 + d1 * d1)); // Cognitive motivator
                     v += _charge * r * c[f][0] * c[f][3] * (1.0 + m / (1.0 + d2 * d2)); // Global motivator
                     v -= _charge * r * c[f][0] * c[f][4] * (1.0 + m / (1.0 + d3 * d3)); // Cognitive lesson
