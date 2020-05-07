@@ -19,30 +19,6 @@ namespace CLI
     {
         static void Main(string[] args)
         {
-            var a = new [,]
-                {
-                    {"a","b","c","d"},
-                    {"A","B","C","D"},
-                };
-
-            Console.WriteLine(a.Printable());
-
-            var b = new [,]
-                {
-                    {"1", "10" },
-                    {"2", "20" },
-                    {"3", "30" },
-                    {"4", "40" },
-                    {"5", "50" },
-                };
-
-            Console.WriteLine(b.Printable());
-
-            var p = a.Cross(b, (z, x, y) => z + $"({x + y})" );
-
-            Console.WriteLine(p.Printable());
-
-
             //Test001();
             TestPSO();
             Console.WriteLine("EOP!");
