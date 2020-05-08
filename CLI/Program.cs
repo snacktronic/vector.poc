@@ -29,27 +29,28 @@ namespace CLI
         {
             var i = 0;
             var exit = false;
+            var total = new TotalCost(costs: new []
+            {
+                new Cost(s => s.Sum(x => x * x)),
+                new Cost(s => s.Sum(x => x * x)),
+            });
 
-            var sphere = new Lib.PSO.Extended(particles:1, dimensions:10, charge: 1.0, rangeMin:-100.0, rangeMax:100.0, seed:1, 
+            var sphere = new Extended(particles:1, dimensions:3, charge: 1.0, rangeMin:-10.0, rangeMax:10.0, seed:1, 
                 exit:() => exit || ++i < 0,// || ++i > 100000,
-                functions: new []{
-                new Cost(s => s.Skip(0).Take(3).Sum(x => x * x)),
-                new Cost(s => s.Skip(3).Take(3).Sum(x => x * x)),
-                new Cost(s => s.Skip(6).Take(3).Sum(x => x * x)),
-                new Cost(s => s.Skip(9).Take(3).Sum(x => x * x))
-                }
+               solution => total.Cost(solution)
+                //s => s.Sum(x => x * x)
                 );
 
             sphere.Minimum += (function, cost, solution) =>
             {
                 var j = i;
-                Console.WriteLine($"#{j} Min[{function}]: {cost:C} [{string.Join(",",solution)}]"); 
+                Console.WriteLine($"#{j} Min[{function}]: {cost:c} [{string.Join(",",solution)}]"); 
             };
 
             sphere.Maximum += (function, cost, solution) =>
             {
                 var j = i;
-                Console.WriteLine($"#{j} Max[{function}]: {cost:C} [{string.Join(",", solution)}]");
+                Console.WriteLine($"#{j} Max[{function}]: {cost:c} [{string.Join(",", solution)}]");
             };
 
             sphere.Search();

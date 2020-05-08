@@ -149,7 +149,7 @@ namespace Lib.PSO
             {
                 var solution = Solution(_position[p]);
                 var cost = _functions[f](solution);
-                _mass[p] += cost; // += 1.0 / (_mass[p] - cost)^2 # Div by ZERO error
+               _mass[p] += cost; // += 1.0 / (_mass[p] - cost)^2 # Div by ZERO error
 
                 if (cost < _min_cost[p, f])
                 {
@@ -176,6 +176,7 @@ namespace Lib.PSO
                     OnMaximum(f, cost, solution);
                 }
             }
+            _mass[p] = Math.Tanh(_mass[p]);
         }
 
         protected virtual double[] Coefficients(int f)

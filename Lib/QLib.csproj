@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="PSO\Extended.cs" />
     <Compile Include="PSO\Swarm.cs" />
+    <Compile Include="PSO\TotalCost.cs" />
     <Compile Include="QLogic\Circuit.cs" />
     <Compile Include="QMath\Extensions.cs" />
     <Compile Include="QMath\Model\Angle.cs" />
